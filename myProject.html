@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<!--
+My first project in HTML using JPDB details about school students
+-->
+<html lang="en">
+<head>
+<title>Bootstrap Example</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet"
+href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script
+src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script
+src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+<h2>Student Details Form</h2>
+<form id="stuForm" method="post">
+<div class="form-group">
+<span><label for="stuId">Student ID:</label> <label id="stuIdMsg">
+</label></span>
+<input type="text" class="form-control" name="stuId" id="stuId"
+placeholder="Enter Student ID" required>
+</div>
+<div class="form-group">
+<label for="stuName">Student Name:</label>
+<input type="text" class="form-control" id="stuName"
+placeholder="Enter Student Name" name="stuName">
+</div>
+<div class="form-group">
+<label for="class">Class:</label>
+<input type="text" class="form-control" id="class"
+placeholder="Enter Student Class" name="class">
+</div>
+<input type="button" class="btn btn-primary" id="empSave" value="Save"
+onclick="saveStudent();">
+</form>
+</div>
+<script>
+$("#stuId").focus();
+function validateAndGetFormData() {
+var stuIdVar = $("#stuId").val();
+if (stuIdVar === "") {
+alert("Student ID is a Required Value");
+$("#stuId").focus();
+return "";
+}
+var stuNameVar = $("#stuName").val();
+if (stuNameVar === "") {
+alert("Student Name is a Required Value");
+$("#stuName").focus();
+return "";
+}
+var stuClassVar = $("#class").val();
+if (stuClassVar === "") {
+alert("Student Class is a Required Value");
+$("#class").focus();
+return "";
+}
+var jsonStrObj = {
+stuId: stuIdVar,
+stuName: stuNameVar,
+class: stuClassVar,
+};
+return JSON.stringify(jsonStrObj);
+}
+// This method is used to create PUT Json request.
+function createPUTRequest(connToken, jsonObj, dbName, relName) {
+var putRequest = "{\n"
++ "\"token\" : \""
++ connToken
++ "\","
++ "\"dbName\": \""
++ dbName
++ "\",\n" + "\"cmd\" : \"PUT\",\n"
++ "\"rel\" : \""
++ relName + "\","
++ "\"jsonStr\": \n"
++ jsonObj
++ "\n"
++ "}";
+return putRequest;
+}
+function executeCommand(reqString, dbBaseUrl, apiEndPointUrl) {
+var url = dbBaseUrl + apiEndPointUrl;
+var jsonObj;
+$.post(url, reqString, function (result) {
+jsonObj = JSON.parse(result);
+}).fail(function (result) {
+var dataJsonObj = result.responseText;
+jsonObj = JSON.parse(dataJsonObj);
+});
+return jsonObj;
+}
+function resetForm() {
+$("#stuId").val("")
+$("#stuName").val("");
+$("#class").val("");
+$("#stuId").focus();
+}
+function saveStudent() {
+var jsonStr = validateAndGetFormData();
+if (jsonStr === "") {
+return;
+}
+var putReqStr = createPUTRequest("90938525|-31948831384172481|90946974",
+jsonStr, "STUDENT", "STU-CLASS");
+alert(putReqStr);
+jQuery.ajaxSetup({async: false});
+var resultObj = executeCommand(putReqStr,
+"http://api.login2explore.com:5577", "/api/iml");
+alert(JSON.stringify(resultObj));
+jQuery.ajaxSetup({async: true});
+resetForm();
+}
+</script>
+</body>
+</html>
